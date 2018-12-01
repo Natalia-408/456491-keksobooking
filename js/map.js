@@ -39,23 +39,21 @@ function getRandomItem(arrayProperty) {
   return arrayProperty[Math.floor(Math.random() * arrayProperty.length)];
 }
 
-//перемешать элементы массива
+// перемешать элементы массива
 function shuffle(arrayProperty) {
-  for(
-       var numRnd, numCur, i = arrayProperty.length; i; 
-       numRnd = Math.floor(Math.random() * i), 
-       numCur = arrayProperty[--i], 
-       arrayProperty[i] = arrayProperty[numRnd], 
-       arrayProperty[numRnd] = numCur
-   );
+  for (var i = arrayProperty.length - 1; i > 0; i--) {
+    var numRnd = Math.floor(Math.random() * (i + 1));
+    var itemCur = arrayProperty[i];
+    arrayProperty[i] = arrayProperty[numRnd];
+    arrayProperty[numRnd] = itemCur;
+  }
   return arrayProperty;
 }
 
-//получить сроку значений удобств
+// получить строку значений удобств
 function getRandomFeatures(arrayProperty) {
   var featuresCount = Math.floor(Math.random() * arrayProperty.length) + 1;
   var features = '';
-  
   arrayProperty = shuffle(arrayProperty);
   for (var i = 0; i < featuresCount; i++) {
     features += arrayProperty[i] + ' ';
@@ -63,16 +61,14 @@ function getRandomFeatures(arrayProperty) {
   return features;
 }
 
-//создание DOM-элементов, соответствующих меткам на карте
+// создание DOM-элементов, соответствующих меткам на карте
 function DeterminateAnnouncement(
-  itemTitleFormal,
-  itemTypeFormal,
-  itemCheckFormal,
-  itemFeaturesFormal,
-  itemPhotosFormal
-) 
-{
-  var titleNumberRandom = Math.floor(Math.random() * itemTitleFormal.length);
+    itemTitleFormal,
+    itemTypeFormal,
+    itemCheckFormal,
+    itemFeaturesFormal,
+    itemPhotosFormal
+) {
   var x = getRandomItem(itemTitleFormal);
   itemTitleFormal.splice(x, 1);
   this.author = {};
@@ -99,18 +95,18 @@ var announcements = [];
 
 for (var i = 0; i < announcementCount; i++) {
   announcements[i] = new DeterminateAnnouncement(
-    itemTitle,
-    itemType,
-    itemCheck,
-    itemFeatures,
-    itemPhotos
+      itemTitle,
+      itemType,
+      itemCheck,
+      itemFeatures,
+      itemPhotos
   );
-};
+}
 
 var mapAnnouncement = document.querySelector('.map');
 mapAnnouncement.classList.remove('map--faded');
 
-//размешение pin на карте
+// размешение pin на карте
 var pinList = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content;
 
@@ -123,13 +119,13 @@ var renderPin = function (announc) {
 };
 
 var fragmentPin = document.createDocumentFragment();
-for (var i = 0; i < announcements.length; i++) {
-  fragmentPin.appendChild(renderPin(announcements[i]));
+for (var j = 0; j < announcements.length; j++) {
+  fragmentPin.appendChild(renderPin(announcements[j]));
 }
 
 pinList.appendChild(fragmentPin);
 
-//DOM-элемент объявления
+// DOM-элемент объявления
 var adList = document.querySelector('.map');
 var adTemplate = document.querySelector('#card').content.querySelector('.map__card');
 var typeHouseRu = [
@@ -151,8 +147,8 @@ var renderAd = function (ad) {
   adElement.querySelector('.popup__description').textContent = ad.offer.description;
   adElement.querySelector('.popup__photos').querySelector('.popup__photo').setAttribute('src', '' + ad.offer.photos[0]);
   var popupPhotosList = adElement.querySelector('.popup__photos');
-  var popupPhotoTemplate = popupPhotosList.querySelector('.popup__photo'); 
-  popupPhotoTemplate.setAttribute('src', '' + itemPhotos[0]); // заполняем первый элемент, чтобы потом было что копировать
+  var popupPhotoTemplate = popupPhotosList.querySelector('.popup__photo');
+  popupPhotoTemplate.setAttribute('src', '' + itemPhotos[0]);
   for (var k = 1; k < itemPhotos.length; k++) {
     var photoElement = popupPhotoTemplate.cloneNode(true);
     photoElement.setAttribute('src', '' + itemPhotos[k]);
