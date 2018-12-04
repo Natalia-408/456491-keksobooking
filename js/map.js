@@ -104,7 +104,7 @@ for (var i = 0; i < announcementCount; i++) {
 }
 
 var mapAnnouncement = document.querySelector('.map');
-mapAnnouncement.classList.remove('map--faded');
+// mapAnnouncement.classList.remove('map--faded');
 
 // размешение pin на карте
 var pinList = document.querySelector('.map__pins');
@@ -123,7 +123,7 @@ for (var j = 0; j < announcements.length; j++) {
   fragmentPin.appendChild(renderPin(announcements[j]));
 }
 
-pinList.appendChild(fragmentPin);
+// pinList.appendChild(fragmentPin);
 
 // DOM-элемент объявления
 var adList = document.querySelector('.map');
@@ -161,5 +161,38 @@ var renderAd = function (ad) {
 var fragmentAd = document.createDocumentFragment();
 fragmentAd.appendChild(renderAd(announcements[0]));
 
-adList.insertBefore(fragmentAd, adList.children[1]);
+// adList.insertBefore(fragmentAd, adList.children[1]);
+
+// блокируем поля формы
+var fieldsetList = document.querySelectorAll('.ad-form__element');
+var fieldsetImg = document.querySelector('.ad-form-header');
+
+var pinMain = document.querySelector('.map__pin--main');
+var formMain = document.querySelector('.ad-form');
+
+var cX = Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2);
+var cY = Math.round(pinMain.offsetTop + pinMain.offsetHeight / 2);
+
+var fieldAddress = document.getElementById('address');
+fieldAddress.value = cX + ', ' + cY;
+
+fieldsetImg.setAttribute('disabled', 'disabled');
+Array.prototype.forEach.call(fieldsetList, function (element) {
+  element.setAttribute('disabled', 'disabled');
+});
+
+// перевод в активное состояние
+
+
+var pinMainClickHandler = function (evt) {
+  fieldsetImg.removeAttribute('disabled');
+  formMain.classList.remove('ad-form--disabled');
+  Array.prototype.forEach.call(fieldsetList, function (element) {
+    element.removeAttribute('disabled');
+  });
+};
+
+pinMain.addEventListener('mouseup', pinMainClickHandler);
+
+// заполнение поля адреса
 
