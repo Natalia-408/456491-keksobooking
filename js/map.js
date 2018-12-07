@@ -1,6 +1,10 @@
 'use strict';
+
+var ESC_KEYCODE = 27;
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
+
+var fragmentAd = null;
 
 var itemTitle = [
   'Большая уютная квартира',
@@ -69,15 +73,13 @@ function DeterminateAnnouncement(
     itemFeaturesFormal,
     itemPhotosFormal
 ) {
-  var x = getRandomItem(itemTitleFormal);
-  itemTitleFormal.splice(x, 1);
   this.author = {};
   this.author.avatar = 'img/avatars/user0' + itemNumbers[i] + '.png';
   this.location = {};
   this.location.x = getRandomInteger(1, 980);
   this.location.y = getRandomInteger(130, 630);
   this.offer = {};
-  this.offer.title = x;
+  this.offer.title = getRandomItem(itemTitleFormal);
   this.offer.prices = getRandomInteger(1000, 1000000);
   this.offer.type = getRandomItem(itemTypeFormal);
   this.offer.rooms = getRandomInteger(1, 5);
@@ -103,27 +105,38 @@ for (var i = 0; i < announcementCount; i++) {
   );
 }
 
-var mapAnnouncement = document.querySelector('.map');
-mapAnnouncement.classList.remove('map--faded');
-
-// размешение pin на карте
+// размешение pin и объявления на карте
 var pinList = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content;
 
-var renderPin = function (announc) {
+function closeCard() {
+  adList.removeChild(fragmentAd);
+  fragmentAd = null;
+}
+
+function pinClick(numPin) {
+  if (fragmentAd !== null) {
+    adList.removeChild(fragmentAd);
+  }
+  fragmentAd = renderAd(announcements[numPin]);
+  adList.appendChild(fragmentAd);
+}
+
+var renderPin = function (announc, numPin) {
   var pinElement = pinTemplate.cloneNode(true).querySelector('.map__pin');
   pinElement.setAttribute('style', 'left: ' + (announc.location.x + PIN_WIDTH / 2) + 'px; top: ' + (announc.location.y + PIN_HEIGHT) + 'px;');
   pinElement.children[0].setAttribute('src', announc.author.avatar);
   pinElement.children[0].setAttribute('alt', announc.offer.title);
+  pinElement.addEventListener('click', function () {
+    pinClick(numPin);
+  });
   return pinElement;
 };
 
 var fragmentPin = document.createDocumentFragment();
 for (var j = 0; j < announcements.length; j++) {
-  fragmentPin.appendChild(renderPin(announcements[j]));
+  fragmentPin.appendChild(renderPin(announcements[j], j));
 }
-
-pinList.appendChild(fragmentPin);
 
 // DOM-элемент объявления
 var adList = document.querySelector('.map');
@@ -155,11 +168,57 @@ var renderAd = function (ad) {
     popupPhotosList.appendChild(photoElement);
   }
   adElement.querySelector('.popup__avatar').setAttribute('src', '' + ad.author.avatar);
+  adElement.querySelector('.popup__close').addEventListener('click', closeCard);
+
+
   return adElement;
 };
-
+/*
 var fragmentAd = document.createDocumentFragment();
 fragmentAd.appendChild(renderAd(announcements[0]));
+adList.insertBefore(fragmentAd, adList.children[0]);
+*/
+// блокируем поля формы
+var fieldsetList = document.querySelectorAll('.ad-form__element');
+var fieldsetImg = document.querySelector('.ad-form-header');
 
-adList.insertBefore(fragmentAd, adList.children[1]);
+var pinMain = document.querySelector('.map__pin--main');
+var formMain = document.querySelector('.ad-form');
+
+var cX = Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2);
+var cY = Math.round(pinMain.offsetTop + pinMain.offsetHeight / 2);
+
+var fieldAddress = document.getElementById('address');
+fieldAddress.value = cX + ', ' + cY;
+
+fieldsetImg.setAttribute('disabled', 'disabled');
+Array.prototype.forEach.call(fieldsetList, function (element) {
+  element.setAttribute('disabled', 'disabled');
+});
+
+// перевод в активное состояние
+
+var mapAnnouncement = document.querySelector('.map');
+var pinMainClickHandler = function () {
+  fieldsetImg.removeAttribute('disabled');
+  formMain.classList.remove('ad-form--disabled');
+  pinList.appendChild(fragmentPin);
+  mapAnnouncement.classList.remove('map--faded');
+
+  Array.prototype.forEach.call(fieldsetList, function (element) {
+    element.removeAttribute('disabled');
+  });
+};
+
+pinMain.addEventListener('mouseup', pinMainClickHandler);
+
+// закрываем окно объявления
+
+window.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    if (fragmentAd !== null) {
+      closeCard();
+    }
+  }
+});
 
