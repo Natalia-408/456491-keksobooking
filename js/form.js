@@ -34,6 +34,7 @@ var checkType = function () {
 
 document.getElementById('type').addEventListener('change', checkType);
 
+
 // проверяем значение времени заезда-выезда
 var timein = document.getElementById('timein');
 var timeout = document.getElementById('timeout');
