@@ -185,11 +185,15 @@ var fieldsetImg = document.querySelector('.ad-form-header');
 var pinMain = document.querySelector('.map__pin--main');
 var formMain = document.querySelector('.ad-form');
 
-var cX = Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2);
-var cY = Math.round(pinMain.offsetTop + pinMain.offsetHeight / 2);
+// var cX = Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2);
+// var cY = Math.round(pinMain.offsetTop + pinMain.offsetHeight / 2);
+var startCoords = {
+  x: Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2),
+  y: Math.round(pinMain.offsetTop + pinMain.offsetHeight / 2)
+};
 
 var fieldAddress = document.getElementById('address');
-fieldAddress.value = cX + ', ' + cY;
+fieldAddress.value = 'x: ' + startCoords.x + ', y:' + startCoords.y;
 
 fieldsetImg.setAttribute('disabled', 'disabled');
 Array.prototype.forEach.call(fieldsetList, function (element) {
@@ -208,6 +212,81 @@ var pinMainClickHandler = function () {
   Array.prototype.forEach.call(fieldsetList, function (element) {
     element.removeAttribute('disabled');
   });
+
+  pinMain.addEventListener('mousedown', function (Downevt) {
+    Downevt.preventDefault();
+
+    startCoords = {
+      x: Downevt.clientX,
+      y: Downevt.clientY
+    };
+    var widthMap = mapAnnouncement.clientWidth - PIN_WIDTH;
+    var heightMap = mapAnnouncement.clientHeight - PIN_HEIGHT / 2;
+
+    var dragged = false;
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+      dragged = true;
+
+      var shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      var pinMainTop = pinMain.offsetTop - shift.y;
+      var pinMainLeft = pinMain.offsetLeft - shift.x;
+
+      if (pinMainLeft < 0) {
+        pinMainLeft = 0;
+      } else if (pinMainLeft > widthMap) {
+        pinMainLeft = widthMap;
+      }
+
+      if (pinMainTop < 0) {
+        pinMainTop = 0;
+      } else if (pinMainTop > heightMap) {
+        pinMainTop = heightMap - PIN_HEIGHT / 2;
+      }
+
+      pinMain.style.top = pinMainTop + 'px';
+      pinMain.style.left = pinMainLeft + 'px';
+
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+
+
+      startCoords = {
+        x: Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2),
+        y: pinMain.offsetTop
+      };
+
+      fieldAddress.value = 'x: ' + startCoords.x + ', y:' + (startCoords.y + PIN_HEIGHT);
+
+      if (dragged) {
+        var onClickPreventDefault = function (evt) {
+          evt.preventDefault();
+          pinMain.removeEventListener('click', onClickPreventDefault);
+        };
+        pinMain.addEventListener('click', onClickPreventDefault);
+      }
+
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
 };
 
 pinMain.addEventListener('mouseup', pinMainClickHandler);
