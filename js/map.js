@@ -4,6 +4,7 @@ var ESC_KEYCODE = 27;
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
 
+
 var fragmentAd = null;
 
 var itemTitle = [
@@ -106,7 +107,7 @@ for (var i = 0; i < announcementCount; i++) {
 }
 
 // размешение pin и объявления на карте
-var pinList = document.querySelector('.map__pins');
+
 var pinTemplate = document.querySelector('#pin').content;
 
 function closeCard() {
@@ -133,9 +134,9 @@ var renderPin = function (announc, numPin) {
   return pinElement;
 };
 
-var fragmentPin = document.createDocumentFragment();
+// var fragmentPin = document.createDocumentFragment();
 for (var j = 0; j < announcements.length; j++) {
-  fragmentPin.appendChild(renderPin(announcements[j], j));
+  window.util.fragmentPin.appendChild(renderPin(announcements[j], j));
 }
 
 // DOM-элемент объявления
@@ -173,123 +174,6 @@ var renderAd = function (ad) {
 
   return adElement;
 };
-/*
-var fragmentAd = document.createDocumentFragment();
-fragmentAd.appendChild(renderAd(announcements[0]));
-adList.insertBefore(fragmentAd, adList.children[0]);
-*/
-// блокируем поля формы
-var fieldsetList = document.querySelectorAll('.ad-form__element');
-var fieldsetImg = document.querySelector('.ad-form-header');
-
-var pinMain = document.querySelector('.map__pin--main');
-var formMain = document.querySelector('.ad-form');
-
-// var cX = Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2);
-// var cY = Math.round(pinMain.offsetTop + pinMain.offsetHeight / 2);
-var startCoords = {
-  x: Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2),
-  y: Math.round(pinMain.offsetTop + pinMain.offsetHeight / 2)
-};
-
-var fieldAddress = document.getElementById('address');
-fieldAddress.value = 'x: ' + startCoords.x + ', y:' + startCoords.y;
-
-fieldsetImg.setAttribute('disabled', 'disabled');
-Array.prototype.forEach.call(fieldsetList, function (element) {
-  element.setAttribute('disabled', 'disabled');
-});
-
-// перевод в активное состояние
-
-var mapAnnouncement = document.querySelector('.map');
-var pinMainClickHandler = function () {
-  fieldsetImg.removeAttribute('disabled');
-  formMain.classList.remove('ad-form--disabled');
-  pinList.appendChild(fragmentPin);
-  mapAnnouncement.classList.remove('map--faded');
-
-  Array.prototype.forEach.call(fieldsetList, function (element) {
-    element.removeAttribute('disabled');
-  });
-
-  pinMain.addEventListener('mousedown', function (Downevt) {
-    Downevt.preventDefault();
-
-    startCoords = {
-      x: Downevt.clientX,
-      y: Downevt.clientY
-    };
-    var widthMap = mapAnnouncement.clientWidth - PIN_WIDTH;
-    var heightMap = mapAnnouncement.clientHeight - PIN_HEIGHT / 2;
-
-    var dragged = false;
-
-    var onMouseMove = function (moveEvt) {
-      moveEvt.preventDefault();
-      dragged = true;
-
-      var shift = {
-        x: startCoords.x - moveEvt.clientX,
-        y: startCoords.y - moveEvt.clientY
-      };
-
-      startCoords = {
-        x: moveEvt.clientX,
-        y: moveEvt.clientY
-      };
-
-      var pinMainTop = pinMain.offsetTop - shift.y;
-      var pinMainLeft = pinMain.offsetLeft - shift.x;
-
-      if (pinMainLeft < 0) {
-        pinMainLeft = 0;
-      } else if (pinMainLeft > widthMap) {
-        pinMainLeft = widthMap;
-      }
-
-      if (pinMainTop < 0) {
-        pinMainTop = 0;
-      } else if (pinMainTop > heightMap) {
-        pinMainTop = heightMap - PIN_HEIGHT / 2;
-      }
-
-      pinMain.style.top = pinMainTop + 'px';
-      pinMain.style.left = pinMainLeft + 'px';
-
-    };
-
-    var onMouseUp = function (upEvt) {
-      upEvt.preventDefault();
-
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-
-
-      startCoords = {
-        x: Math.round(pinMain.offsetLeft + pinMain.offsetWidth / 2),
-        y: pinMain.offsetTop
-      };
-
-      fieldAddress.value = 'x: ' + startCoords.x + ', y:' + (startCoords.y + PIN_HEIGHT);
-
-      if (dragged) {
-        var onClickPreventDefault = function (evt) {
-          evt.preventDefault();
-          pinMain.removeEventListener('click', onClickPreventDefault);
-        };
-        pinMain.addEventListener('click', onClickPreventDefault);
-      }
-
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
-};
-
-pinMain.addEventListener('mouseup', pinMainClickHandler);
 
 // закрываем окно объявления
 
